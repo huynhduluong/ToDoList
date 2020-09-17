@@ -56,10 +56,17 @@ function renderTask(arr) {
 }
 
 function handleDeleteTask(id) {
+    if (!confirm("Do you want to delete this task")) {
+        return;
+    }
+
+    getEle("loading").style.visibility = "visible";
+    
     taskListService.deleteTaskService(id)
         .then(function (result) {
             alert("Delete task success");
             renderTaskList();
+            getEle("loading").style.visibility = "hidden";            
         })
         .catch(function (err) {
             console.log(err);
@@ -67,6 +74,8 @@ function handleDeleteTask(id) {
 }
 
 getEle("addItem").addEventListener("click", function () {
+    getEle("loading").style.visibility = "visible";
+
     var nameTask = getEle("newTask").value;
 
     if (nameTask.trim() === "") {
@@ -80,6 +89,8 @@ getEle("addItem").addEventListener("click", function () {
         .then(function (result) {
             alert("Add task success");
             renderTaskList();
+            getEle("loading").style.visibility = "hidden";
+            getEle("newTask").value = "";            
         })
         .catch(function (err) {
             console.log(err);
@@ -127,10 +138,15 @@ function checkStatus(result) {
  * Viết bằng async await của ES7
  */
 async function handleCompleteTask(id) {
+    getEle("loading").style.visibility = "visible";
+
     var taskID = await getTask(id);
     var task = await updateTask(checkStatus(taskID));
+
     alert("Change status success");
     renderTaskList();
+    getEle("loading").style.visibility = "hidden";
+    
 }
 
 
