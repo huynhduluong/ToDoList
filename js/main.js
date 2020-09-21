@@ -4,6 +4,10 @@ function getEle(id) {
     return document.getElementById(id);
 }
 
+function renderLoading() {
+    return getEle("loading").style.visibility = "visible";
+}
+
 function renderTaskList() {
     taskListService.getTaskListService()
         .then(function (result) {
@@ -53,20 +57,25 @@ function renderTask(arr) {
     };
     getEle("todo").innerHTML = contentNewTask;
     getEle("completed").innerHTML = contentCompletedTask;
+    getEle("loading").style.visibility = "hidden";  
 }
+
+//Render data in first time load website
+renderLoading();
+renderTaskList();
 
 function handleDeleteTask(id) {
     if (!confirm("Do you want to delete this task")) {
         return;
     }
 
-    getEle("loading").style.visibility = "visible";
+    renderLoading();
     
     taskListService.deleteTaskService(id)
         .then(function (result) {
             alert("Delete task success");
             renderTaskList();
-            getEle("loading").style.visibility = "hidden";            
+                      
         })
         .catch(function (err) {
             console.log(err);
@@ -74,8 +83,6 @@ function handleDeleteTask(id) {
 }
 
 getEle("addItem").addEventListener("click", function () {
-    getEle("loading").style.visibility = "visible";
-
     var nameTask = getEle("newTask").value;
 
     if (nameTask.trim() === "") {
@@ -83,13 +90,14 @@ getEle("addItem").addEventListener("click", function () {
         return;
     }
 
+    renderLoading();
+
     var newTask = new Task("", nameTask, "todo", nameTask);
 
     taskListService.addTaskService(newTask)
         .then(function (result) {
             alert("Add task success");
             renderTaskList();
-            getEle("loading").style.visibility = "hidden";
             getEle("newTask").value = "";            
         })
         .catch(function (err) {
@@ -138,16 +146,13 @@ function checkStatus(result) {
  * Viết bằng async await của ES7
  */
 async function handleCompleteTask(id) {
-    getEle("loading").style.visibility = "visible";
+    renderLoading();
 
-    var taskID = await getTask(id);
-    var task = await updateTask(checkStatus(taskID));
+    var getTaskID = await getTask(id);
+    var task = await updateTask(checkStatus(getTaskID));
 
     alert("Change status success");
-    renderTaskList();
-    getEle("loading").style.visibility = "hidden";
-    
+    renderTaskList();    
 }
 
 
-renderTaskList();
